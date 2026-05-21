@@ -88,6 +88,12 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  SizedBox(height: 12.h),
+                  OutlinedButton.icon(
+                    onPressed: () => context.push('/company/apply'),
+                    icon: const Icon(Icons.business_center_outlined),
+                    label: const Text('Dang ky cho doanh nghiep'),
+                  ),
                 ],
               ),
             ),

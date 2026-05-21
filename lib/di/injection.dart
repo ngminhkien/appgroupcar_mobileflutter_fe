@@ -16,6 +16,13 @@ import '../features/auth/domain/usecases/register_usecase.dart';
 import '../features/auth/presentation/bloc/login_bloc.dart';
 import '../features/auth/presentation/bloc/register_bloc.dart';
 import '../features/auth/presentation/cubit/auth_cubit.dart';
+import '../features/company/data/datasources/company_remote_data_source.dart';
+import '../features/company/data/repositories/company_repository_impl.dart';
+import '../features/company/domain/repositories/company_repository.dart';
+import '../features/company/domain/usecases/check_company_status_usecase.dart';
+import '../features/company/domain/usecases/create_company_usecase.dart';
+import '../features/company/domain/usecases/update_company_usecase.dart';
+import '../features/company/presentation/cubit/company_apply_cubit.dart';
 import '../features/driver/data/datasources/driver_remote_data_source.dart';
 import '../features/driver/data/repositories/driver_repository_impl.dart';
 import '../features/driver/domain/repositories/driver_repository.dart';
@@ -23,6 +30,18 @@ import '../features/driver/domain/usecases/create_driver_usecase.dart';
 import '../features/driver/domain/usecases/get_current_driver_profile_usecase.dart';
 import '../features/driver/domain/usecases/update_driver_usecase.dart';
 import '../features/driver/presentation/cubit/driver_apply_cubit.dart';
+import '../features/home/data/datasources/home_search_local_data_source.dart';
+import '../features/home/data/datasources/trip_search_remote_data_source.dart';
+import '../features/home/data/repositories/trip_search_repository_impl.dart';
+import '../features/home/domain/repositories/trip_search_repository.dart';
+import '../features/home/domain/usecases/search_trips_usecase.dart';
+import '../features/home/presentation/cubit/home_search_cubit.dart';
+import '../features/home/presentation/cubit/trip_search_cubit.dart';
+import '../features/location/data/datasources/location_remote_data_source.dart';
+import '../features/location/data/repositories/location_repository_impl.dart';
+import '../features/location/domain/repositories/location_repository.dart';
+import '../features/location/domain/usecases/search_locations_usecase.dart';
+import '../features/location/presentation/cubit/location_search_cubit.dart';
 import '../features/user/data/datasources/user_remote_data_source.dart';
 import '../features/user/data/repositories/user_repository_impl.dart';
 import '../features/user/domain/repositories/user_repository.dart';
@@ -92,6 +111,16 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateDriverUseCase(sl()));
   sl.registerFactory(() => DriverApplyCubit(sl(), sl(), sl()));
 
+  // Features - Company
+  sl.registerLazySingleton(() => CompanyRemoteDataSource(sl()));
+  sl.registerLazySingleton<CompanyRepository>(
+    () => CompanyRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => CreateCompanyUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateCompanyUseCase(sl()));
+  sl.registerLazySingleton(() => CheckCompanyStatusUseCase(sl()));
+  sl.registerFactory(() => CompanyApplyCubit(sl(), sl(), sl()));
+
   // Features - Vehicle
   sl.registerLazySingleton(() => VehicleRemoteDataSource(sl()));
   sl.registerLazySingleton<VehicleRepository>(
@@ -103,10 +132,22 @@ Future<void> init() async {
   sl.registerFactory(() => VehicleCubit(sl(), sl(), sl()));
 
   // Features - Home
-  // sl.registerFactory(() => HomeBloc(sl()));
+  sl.registerLazySingleton(() => HomeSearchLocalDataSource(sl()));
+  sl.registerLazySingleton(() => TripSearchRemoteDataSource(sl()));
+  sl.registerLazySingleton<TripSearchRepository>(
+    () => TripSearchRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => SearchTripsUseCase(sl()));
+  sl.registerFactory(() => HomeSearchCubit(sl()));
+  sl.registerFactory(() => TripSearchCubit(sl()));
 
   // Features - Location
-  // sl.registerFactory(() => LocationBloc(sl()));
+  sl.registerLazySingleton(() => LocationRemoteDataSource(sl()));
+  sl.registerLazySingleton<LocationRepository>(
+    () => LocationRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
+  sl.registerFactory(() => LocationSearchCubit(sl()));
 
   // Features - Trips
   // sl.registerFactory(() => TripsBloc(sl()));

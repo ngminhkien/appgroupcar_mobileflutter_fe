@@ -7,11 +7,15 @@ import '../../features/auth/presentation/cubit/auth_state.dart';
 import '../../features/auth/presentation/pages/forgot_password_screen.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
+import '../../features/company/presentation/pages/company_apply_screen.dart';
 import '../../features/driver/presentation/pages/driver_apply_screen.dart';
-import '../../features/home/presentation/pages/velocity_transit_home_screen.dart';
-import '../../features/home/presentation/pages/home_search_screen.dart';
+import '../../features/home/presentation/models/trip_detail_navigation_args.dart';
+import '../../features/home/presentation/models/trip_search_screen_args.dart';
 import '../../features/home/presentation/pages/search_results_screen.dart';
+import '../../features/home/presentation/pages/trip_detail_placeholder_screen.dart';
+import '../../features/home/presentation/pages/velocity_transit_home_screen.dart';
 import '../../features/intro/presentation/pages/intro_screen.dart';
+import '../../features/location/presentation/models/location_search_screen_args.dart';
 import '../../features/location/presentation/pages/location_search_screen.dart';
 import '../../features/offers/presentation/pages/offers_screen.dart';
 import '../../features/profile/presentation/pages/my_information_screen.dart';
@@ -45,8 +49,9 @@ class AppRouter {
             location == '/register' ||
             location == '/forgot_password';
         final isIntro = location == '/intro';
+        final isPublicCompanyRoute = location == '/company/apply';
         if (status == AuthStatus.unauthenticated) {
-          if (isAuthRoute || isIntro) {
+          if (isAuthRoute || isIntro || isPublicCompanyRoute) {
             return null;
           }
           return '/login';
@@ -74,20 +79,47 @@ class AppRouter {
           builder: (context, state) => const RegisterScreen(),
         ),
         GoRoute(
+          path: '/company/apply',
+          builder: (context, state) => const CompanyApplyScreen(),
+        ),
+        GoRoute(
           path: '/home',
           builder: (context, state) => const VelocityTransitHomeScreen(),
         ),
         GoRoute(
           path: '/home_search',
-          builder: (context, state) => const HomeSearchScreen(),
+          builder: (context, state) => const VelocityTransitHomeScreen(),
         ),
         GoRoute(
           path: '/search_results',
-          builder: (context, state) => const SearchResultsScreen(),
+          builder: (context, state) {
+            final args = state.extra is TripSearchScreenArgs
+                ? state.extra! as TripSearchScreenArgs
+                : null;
+            return SearchResultsScreen(args: args);
+          },
         ),
         GoRoute(
           path: '/location_search',
-          builder: (context, state) => const LocationSearchScreen(),
+          builder: (context, state) {
+            final args = state.extra is LocationSearchScreenArgs
+                ? state.extra! as LocationSearchScreenArgs
+                : const LocationSearchScreenArgs();
+            return LocationSearchScreen(args: args);
+          },
+        ),
+        GoRoute(
+          path: '/search_results/detail',
+          builder: (context, state) {
+            final args = state.extra is TripDetailNavigationArgs
+                ? state.extra! as TripDetailNavigationArgs
+                : const TripDetailNavigationArgs(
+                    tripId: '',
+                    serviceCode: '',
+                    detailApi: '',
+                  );
+            return TripDetailPlaceholderScreen(args: args);
+          },
         ),
         GoRoute(
           path: '/my_trips',
@@ -159,12 +191,7 @@ class AppRouter {
         ),
         GoRoute(
           path: '/profile/company/apply',
-          builder: (context, state) => const ProfilePlaceholderScreen(
-            title: 'Đăng ký doanh nghiệp',
-            message:
-                'Luồng đăng ký doanh nghiệp sẽ được triển khai khi có contract API.',
-            icon: Icons.business_outlined,
-          ),
+          builder: (context, state) => const CompanyApplyScreen(),
         ),
       ],
     );
@@ -186,3 +213,4 @@ class GoRouterRefreshStream extends ChangeNotifier {
     super.dispose();
   }
 }
+

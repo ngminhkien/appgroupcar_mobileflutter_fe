@@ -68,12 +68,6 @@ class ProfileScreen extends StatelessWidget {
                     subtitle: 'Quản lý xe, ảnh xe và giấy đăng ký',
                     onTap: () => context.push('/profile/driver/vehicles'),
                   ),
-                _ProfileMenuItem(
-                  icon: Icons.business_outlined,
-                  title: 'Đăng ký doanh nghiệp',
-                  subtitle: 'Gửi hồ sơ doanh nghiệp vận chuyển',
-                  onTap: () => context.push('/profile/company/apply'),
-                ),
                 if (isDriver)
                   _ProfileMenuItem(
                     icon: Icons.add_road_outlined,
@@ -277,3 +271,4 @@ class _ProfileMenuItem extends StatelessWidget {
     );
   }
 }
+
