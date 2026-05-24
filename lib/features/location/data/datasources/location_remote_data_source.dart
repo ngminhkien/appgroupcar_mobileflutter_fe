@@ -11,8 +11,11 @@ class LocationRemoteDataSource {
   Future<LocationSearchResponse> searchLocations({
     required LocationSearchRequest request,
   }) async {
+    final endpoint = request.availableForRoute
+        ? '/locations/available-for-route'
+        : '/locations';
     final response = await _dio.get(
-      '/Location',
+      endpoint,
       queryParameters: request.toQueryParameters(),
       options: Options(
         validateStatus: (status) => status != null && status < 500,

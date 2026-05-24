@@ -31,7 +31,10 @@ class AuthCubit extends Cubit<AuthState> {
       final tokens = await _authRepository.refreshTokens();
       final role = tokens?.role?.toUpperCase();
       final isAllowedRole =
-          role == 'USER' || role == 'DRIVER' || role == 'COMPANY';
+          role == 'USER' ||
+          role == 'DRIVER' ||
+          role == 'COMPANY' ||
+          role == 'STAFF_COMPANY';
       if (tokens != null && isAllowedRole) {
         emit(AuthState(status: AuthStatus.authenticated, role: role));
         return true;

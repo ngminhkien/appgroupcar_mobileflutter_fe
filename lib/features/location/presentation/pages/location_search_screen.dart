@@ -21,7 +21,11 @@ class LocationSearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<LocationSearchCubit>(),
+      create: (_) {
+        final cubit = sl<LocationSearchCubit>();
+        cubit.setAvailableForRoute(args.availableForRoute);
+        return cubit;
+      },
       child: _LocationSearchView(args: args),
     );
   }
@@ -115,6 +119,18 @@ class _LocationSearchViewState extends State<_LocationSearchView> {
               ),
             ),
           ),
+          if (widget.args.availableForRoute)
+            Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 8.h),
+              child: Text(
+                'Chi hien cac diem dung hop le cho route: Ward, BusStation, Landmark, Depot',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           Expanded(
             child: BlocConsumer<LocationSearchCubit, LocationSearchState>(
               listener: (context, state) {

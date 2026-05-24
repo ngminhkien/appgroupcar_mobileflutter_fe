@@ -13,7 +13,11 @@ class AppBottomNavBar extends StatelessWidget {
     final role =
         context.select((AuthCubit cubit) => cubit.state.role)?.toUpperCase() ??
         'USER';
-    final items = role == 'DRIVER' ? _driverItems : _userItems;
+    final items = switch (role) {
+      'DRIVER' => _driverItems,
+      'STAFF_COMPANY' => _staffCompanyItems,
+      _ => _userItems,
+    };
     final location = GoRouterState.of(context).uri.path;
     final currentIndex = _resolveIndex(items, location);
 
@@ -76,6 +80,20 @@ const List<_NavItem> _driverItems = [
     label: 'Tạo chuyến',
     icon: Icons.add_circle_outline,
     route: '/create_trip',
+  ),
+  _NavItem(
+    label: 'Hỗ trợ',
+    icon: Icons.support_agent_outlined,
+    route: '/support',
+  ),
+  _NavItem(label: 'Cá nhân', icon: Icons.person, route: '/profile'),
+];
+
+const List<_NavItem> _staffCompanyItems = [
+  _NavItem(
+    label: 'Van hanh',
+    icon: Icons.event_seat_outlined,
+    route: '/staff/check-in',
   ),
   _NavItem(
     label: 'Hỗ trợ',

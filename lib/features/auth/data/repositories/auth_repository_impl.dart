@@ -114,6 +114,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> clearTokens() => localDataSource.clearTokens();
 
   bool _isAllowedRole(String? role) {
-    return role == 'USER' || role == 'DRIVER' || role == 'COMPANY';
+    return role == 'USER' ||
+        role == 'DRIVER' ||
+        role == 'COMPANY' ||
+        role == 'STAFF_COMPANY';
   }
 }

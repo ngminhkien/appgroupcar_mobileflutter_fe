@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../location/domain/entities/location_search_item.dart';
 import '../../data/datasources/home_search_local_data_source.dart';
+import '../../domain/entities/home_recent_search.dart';
 import '../../domain/entities/trip_search_request.dart';
 import '../../domain/entities/trip_service.dart';
 import 'home_search_state.dart';
@@ -88,6 +89,53 @@ class HomeSearchCubit extends Cubit<HomeSearchState> {
       ),
     );
     unawaited(_localDataSource.saveLastDropoffLocation(item));
+  }
+
+  void swapPickupAndDropoff() {
+    final pickup = state.pickupLocation;
+    final dropoff = state.dropoffLocation;
+    emit(
+      state.copyWith(
+        status: HomeSearchStatus.ready,
+        pickupLocation: dropoff,
+        dropoffLocation: pickup,
+        validationMessage: null,
+      ),
+    );
+    unawaited(_localDataSource.saveLastPickupLocation(dropoff));
+    unawaited(_localDataSource.saveLastDropoffLocation(pickup));
+  }
+
+  void applyRecentSearch(HomeRecentSearch item) {
+    final pickup = LocationSearchItem(
+      id: item.pickupLocationId,
+      code: '',
+      name: item.pickupDisplayName,
+      locationType: 99,
+      locationTypeName: 'Other',
+      locationTypeLabel: 'Other',
+      displayName: item.pickupDisplayName,
+    );
+    final dropoff = LocationSearchItem(
+      id: item.dropoffLocationId,
+      code: '',
+      name: item.dropoffDisplayName,
+      locationType: 99,
+      locationTypeName: 'Other',
+      locationTypeLabel: 'Other',
+      displayName: item.dropoffDisplayName,
+    );
+
+    emit(
+      state.copyWith(
+        status: HomeSearchStatus.ready,
+        pickupLocation: pickup,
+        dropoffLocation: dropoff,
+        validationMessage: null,
+      ),
+    );
+    unawaited(_localDataSource.saveLastPickupLocation(pickup));
+    unawaited(_localDataSource.saveLastDropoffLocation(dropoff));
   }
 
   void setDepartureDate(DateTime value) {

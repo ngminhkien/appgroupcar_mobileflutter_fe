@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/injection.dart';
+import '../../domain/entities/trip_route_point_summary.dart';
 import '../../domain/entities/trip_search_item.dart';
 import '../../domain/entities/trip_search_request.dart';
 import '../../domain/entities/trip_service.dart';
@@ -209,14 +210,10 @@ class _TripResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pickupName = item.routePoints.isNotEmpty
-        ? item.routePoints.first.locationName
-        : '-';
-    final dropoffName = item.routePoints.isNotEmpty
-        ? item.routePoints.last.locationName
-        : '-';
-    final usedNearbyPickup = item.match?.usedNearbyForPickup ?? false;
-    final usedNearbyDropoff = item.match?.usedNearbyForDropoff ?? false;
+    final startPoint = item.startPoint;
+    final endPoint = item.endPoint;
+    final matchedPickupPoint = item.matchedPickupPoint;
+    final matchedDropoffPoint = item.matchedDropoffPoint;
 
     return Container(
       padding: EdgeInsets.all(14.w),
@@ -294,21 +291,60 @@ class _TripResultCard extends StatelessWidget {
               children: [
                 _RouteRow(
                   icon: Icons.trip_origin,
-                  label: 'Diem don',
-                  value: pickupName,
+                  label: 'Diem bat dau',
+                  value: _pointName(startPoint),
                 ),
                 SizedBox(height: 6.h),
                 _RouteRow(
                   icon: Icons.place_outlined,
-                  label: 'Diem den',
-                  value: dropoffName,
+                  label: 'Diem ket thuc',
+                  value: _pointName(endPoint),
                 ),
                 SizedBox(height: 6.h),
                 _RouteRow(
                   icon: Icons.schedule,
                   label: 'Gio khoi hanh',
-                  value: _formatDateTime(item.departureTime),
+                  value: _formatDateTime(
+                    item.departureTime,
+                    fallback: _updatingText,
+                  ),
                 ),
+                SizedBox(height: 6.h),
+                _RouteRow(
+                  icon: Icons.timer_outlined,
+                  label: 'Tong thoi gian',
+                  value: _formatDurationMinutes(item.estimatedDurationMinutes),
+                ),
+                SizedBox(height: 6.h),
+                _RouteRow(
+                  icon: Icons.flag_outlined,
+                  label: 'Gio den du kien',
+                  value: _formatApiDateTime(item.estimatedArrivalTime),
+                ),
+                if (matchedPickupPoint != null || matchedDropoffPoint != null)
+                  ...[
+                    SizedBox(height: 8.h),
+                    Divider(
+                      color: AppColors.outlineVariant,
+                      height: 1.h,
+                    ),
+                  ],
+                if (matchedPickupPoint != null) ...[
+                  SizedBox(height: 8.h),
+                  _MatchedPointRow(
+                    icon: Icons.my_location_outlined,
+                    label: 'Diem khop don',
+                    point: matchedPickupPoint,
+                  ),
+                ],
+                if (matchedDropoffPoint != null) ...[
+                  SizedBox(height: 8.h),
+                  _MatchedPointRow(
+                    icon: Icons.location_searching_outlined,
+                    label: 'Diem khop tra',
+                    point: matchedDropoffPoint,
+                  ),
+                ],
               ],
             ),
           ),
@@ -318,16 +354,14 @@ class _TripResultCard extends StatelessWidget {
             runSpacing: 8.h,
             children: [
               _FlagChip(
-                text: usedNearbyPickup
-                    ? 'Mo rong diem don'
-                    : 'Dung diem don chinh xac',
-                highlight: usedNearbyPickup,
+                text:
+                    'Khop diem don: ${_matchTypeLabel(item.match?.pickupMatchType)}',
+                highlight: false,
               ),
               _FlagChip(
-                text: usedNearbyDropoff
-                    ? 'Mo rong diem den'
-                    : 'Dung diem den chinh xac',
-                highlight: usedNearbyDropoff,
+                text:
+                    'Khop diem tra: ${_matchTypeLabel(item.match?.dropoffMatchType)}',
+                highlight: false,
               ),
               _FlagChip(
                 text: 'Service: ${item.reference.serviceCode}',
@@ -350,6 +384,29 @@ class _TripResultCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static String _pointName(TripRoutePointSummary? point) {
+    final name = point?.locationName.trim() ?? '';
+    if (name.isEmpty) {
+      return _updatingText;
+    }
+    return name;
+  }
+
+  static String _matchTypeLabel(int? value) {
+    switch (value) {
+      case 1:
+        return 'Exact';
+      case 2:
+        return 'Sibling';
+      case 3:
+        return 'Parent';
+      case null:
+        return _updatingText;
+      default:
+        return 'Type $value';
+    }
   }
 
   static IconData _serviceIcon(String serviceCode) {
@@ -384,9 +441,11 @@ class _RouteRow extends StatelessWidget {
         Icon(icon, size: 14.sp, color: AppColors.onSurfaceVariant),
         SizedBox(width: 8.w),
         SizedBox(
-          width: 84.w,
+          width: 122.w,
           child: Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 11.sp,
               color: AppColors.onSurfaceVariant,
@@ -438,6 +497,65 @@ class _FlagChip extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
+    );
+  }
+}
+
+class _MatchedPointRow extends StatelessWidget {
+  const _MatchedPointRow({
+    required this.icon,
+    required this.label,
+    required this.point,
+  });
+
+  final IconData icon;
+  final String label;
+  final TripRoutePointSummary point;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 14.sp, color: AppColors.onSurfaceVariant),
+        SizedBox(width: 8.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: AppColors.onSurfaceVariant,
+                  fontSize: 11.sp,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                point.locationName.trim().isEmpty
+                    ? _updatingText
+                    : point.locationName.trim(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.onSurface,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                'ETA: ${_formatApiDateTime(point.estimatedArrivalTime)}'
+                ' - Tu xuat phat: ${_formatTravelMinutesFromDeparture(point.estimatedTravelMinutesFromDeparture)}',
+                style: TextStyle(
+                  color: AppColors.onSurfaceVariant,
+                  fontSize: 11.sp,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -562,6 +680,8 @@ String _serviceSummary(TripSearchScreenArgs args) {
   return args.request.services.map((service) => service.displayName).join(', ');
 }
 
+const String _updatingText = 'Dang cap nhat';
+
 String _formatMoney(double value) {
   final raw = value.round().toString();
   final chars = raw.split('').reversed.toList();
@@ -576,15 +696,48 @@ String _formatMoney(double value) {
   return '$number d';
 }
 
-String _formatDateTime(DateTime? value) {
+String _formatDateTime(DateTime? value, {String fallback = '-'}) {
   if (value == null) {
-    return '-';
+    return fallback;
   }
   final day = value.day.toString().padLeft(2, '0');
   final month = value.month.toString().padLeft(2, '0');
   final hour = value.hour.toString().padLeft(2, '0');
   final minute = value.minute.toString().padLeft(2, '0');
   return '$hour:$minute - $day/$month';
+}
+
+String _formatApiDateTime(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return _updatingText;
+  }
+  final parsed = DateTime.tryParse(value.trim());
+  if (parsed == null) {
+    return value.trim();
+  }
+  return _formatDateTime(parsed, fallback: _updatingText);
+}
+
+String _formatDurationMinutes(int? durationMinutes) {
+  if (durationMinutes == null || durationMinutes <= 0) {
+    return _updatingText;
+  }
+  final hours = durationMinutes ~/ 60;
+  final minutes = durationMinutes % 60;
+  if (hours <= 0) {
+    return '$minutes phut';
+  }
+  if (minutes <= 0) {
+    return '$hours gio';
+  }
+  return '$hours gio $minutes phut';
+}
+
+String _formatTravelMinutesFromDeparture(int? minutes) {
+  if (minutes == null || minutes < 0) {
+    return _updatingText;
+  }
+  return '$minutes phut';
 }
 
 String _formatRequestSchedule(TripSearchRequest request) {

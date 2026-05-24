@@ -7,5 +7,6 @@ abstract class LocationRepository {
     required bool isActive,
     required int pageNumber,
     required int pageSize,
+    bool availableForRoute = false,
   });
 }

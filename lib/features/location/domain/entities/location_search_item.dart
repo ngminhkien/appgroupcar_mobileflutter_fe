@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../../core/enums/location_type.dart';
+
 class LocationSearchItem extends Equatable {
   const LocationSearchItem({
     required this.id,
@@ -18,6 +20,10 @@ class LocationSearchItem extends Equatable {
   final String locationTypeName;
   final String locationTypeLabel;
   final String displayName;
+
+  LocationType get locationTypeEnum => LocationType.fromValue(locationType);
+  bool get isAdministrativeLocation => locationTypeEnum.isAdministrative;
+  bool get isRouteStopAllowed => locationTypeEnum.isRouteStopAllowed;
 
   factory LocationSearchItem.fromJson(Map<String, dynamic> json) {
     return LocationSearchItem(

@@ -10,10 +10,15 @@ class LocationSearchCubit extends Cubit<LocationSearchState> {
     : super(const LocationSearchState());
 
   final SearchLocationsUseCase _searchLocationsUseCase;
+  bool _availableForRoute = false;
 
   Timer? _debounceTimer;
   static const Duration _debounceDuration = Duration(milliseconds: 400);
   static const int _defaultPageSize = 10;
+
+  void setAvailableForRoute(bool value) {
+    _availableForRoute = value;
+  }
 
   void onQueryChanged(String value) {
     final query = value.trim();
@@ -81,6 +86,7 @@ class LocationSearchCubit extends Cubit<LocationSearchState> {
           isActive: true,
           pageNumber: pageNumber,
           pageSize: _defaultPageSize,
+          availableForRoute: _availableForRoute,
         ),
       );
       if (pageNumber == 1) {

@@ -17,7 +17,6 @@ class AppTheme {
         onSurface: AppColors.onSurface,
       ),
       scaffoldBackgroundColor: AppColors.background,
-      fontFamily: 'Inter',
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.primary,
@@ -27,7 +26,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.secondary,
-          foregroundColor: AppColors.onPrimary,
+          foregroundColor: AppColors.onSecondary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),

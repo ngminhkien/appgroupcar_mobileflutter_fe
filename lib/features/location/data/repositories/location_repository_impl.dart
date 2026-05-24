@@ -15,12 +15,14 @@ class LocationRepositoryImpl implements LocationRepository {
     required bool isActive,
     required int pageNumber,
     required int pageSize,
+    bool availableForRoute = false,
   }) async {
     final request = LocationSearchRequest(
       query: query,
       isActive: isActive,
       pageNumber: pageNumber,
       pageSize: pageSize,
+      availableForRoute: availableForRoute,
     );
     final response = await remoteDataSource.searchLocations(request: request);
     if (response.code != 200) {

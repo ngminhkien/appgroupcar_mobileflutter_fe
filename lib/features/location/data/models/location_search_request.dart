@@ -4,12 +4,14 @@ class LocationSearchRequest {
     this.isActive = true,
     this.pageNumber = 1,
     this.pageSize = 10,
+    this.availableForRoute = false,
   });
 
   final String query;
   final bool isActive;
   final int pageNumber;
   final int pageSize;
+  final bool availableForRoute;
 
   Map<String, dynamic> toQueryParameters() {
     return {
@@ -25,12 +27,14 @@ class LocationSearchRequest {
     bool? isActive,
     int? pageNumber,
     int? pageSize,
+    bool? availableForRoute,
   }) {
     return LocationSearchRequest(
       query: query ?? this.query,
       isActive: isActive ?? this.isActive,
       pageNumber: pageNumber ?? this.pageNumber,
       pageSize: pageSize ?? this.pageSize,
+      availableForRoute: availableForRoute ?? this.availableForRoute,
     );
   }
 }

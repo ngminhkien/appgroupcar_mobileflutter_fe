@@ -15,6 +15,7 @@ class SearchLocationsUseCase {
       isActive: params.isActive,
       pageNumber: params.pageNumber,
       pageSize: params.pageSize,
+      availableForRoute: params.availableForRoute,
     );
   }
 }
@@ -25,10 +26,12 @@ class SearchLocationsParams {
     this.isActive = true,
     this.pageNumber = 1,
     this.pageSize = 10,
+    this.availableForRoute = false,
   });
 
   final String query;
   final bool isActive;
   final int pageNumber;
   final int pageSize;
+  final bool availableForRoute;
 }

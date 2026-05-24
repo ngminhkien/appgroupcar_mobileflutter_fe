@@ -16,6 +16,7 @@ class ProfileScreen extends StatelessWidget {
         context.select((AuthCubit cubit) => cubit.state.role)?.toUpperCase() ??
         'USER';
     final isDriver = role == 'DRIVER';
+    final isStaffCompany = role == 'STAFF_COMPANY';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -49,33 +50,44 @@ class ProfileScreen extends StatelessWidget {
             ),
             SizedBox(height: 14.h),
             _ProfileMenuSection(
-              children: [
-                _ProfileMenuItem(
-                  icon: isDriver
-                      ? Icons.verified_user_outlined
-                      : Icons.drive_eta_outlined,
-                  title: isDriver ? 'Hồ sơ tài xế' : 'Đăng ký trở thành tài xế',
-                  subtitle: isDriver
-                      ? 'Xem trạng thái và giấy phép lái xe'
-                      : 'Gửi hồ sơ để được duyệt quyền tạo chuyến',
-                  trailingText: isDriver ? 'Đã duyệt' : null,
-                  onTap: () => context.push('/profile/driver/apply'),
-                ),
-                if (isDriver)
-                  _ProfileMenuItem(
-                    icon: Icons.directions_car_outlined,
-                    title: 'Phương tiện của tôi',
-                    subtitle: 'Quản lý xe, ảnh xe và giấy đăng ký',
-                    onTap: () => context.push('/profile/driver/vehicles'),
-                  ),
-                if (isDriver)
-                  _ProfileMenuItem(
-                    icon: Icons.add_road_outlined,
-                    title: 'Tạo chuyến đi',
-                    subtitle: 'Tạo offer chuyến đi cho khách hàng',
-                    onTap: () => context.push('/create_trip'),
-                  ),
-              ],
+              children: isStaffCompany
+                  ? [
+                      _ProfileMenuItem(
+                        icon: Icons.event_seat_outlined,
+                        title: 'Van hanh ghe',
+                        subtitle: 'Check-in thu cong va dat cho offline',
+                        onTap: () => context.push('/staff/check-in'),
+                      ),
+                    ]
+                  : [
+                      _ProfileMenuItem(
+                        icon: isDriver
+                            ? Icons.verified_user_outlined
+                            : Icons.drive_eta_outlined,
+                        title: isDriver
+                            ? 'Hồ sơ tài xế'
+                            : 'Đăng ký trở thành tài xế',
+                        subtitle: isDriver
+                            ? 'Xem trạng thái và giấy phép lái xe'
+                            : 'Gửi hồ sơ để được duyệt quyền tạo chuyến',
+                        trailingText: isDriver ? 'Đã duyệt' : null,
+                        onTap: () => context.push('/profile/driver/apply'),
+                      ),
+                      if (isDriver)
+                        _ProfileMenuItem(
+                          icon: Icons.directions_car_outlined,
+                          title: 'Phương tiện của tôi',
+                          subtitle: 'Quản lý xe, ảnh xe và giấy đăng ký',
+                          onTap: () => context.push('/profile/driver/vehicles'),
+                        ),
+                      if (isDriver)
+                        _ProfileMenuItem(
+                          icon: Icons.add_road_outlined,
+                          title: 'Tạo chuyến đi',
+                          subtitle: 'Tạo offer chuyến đi cho khách hàng',
+                          onTap: () => context.push('/create_trip'),
+                        ),
+                    ],
             ),
             SizedBox(height: 14.h),
             _ProfileMenuSection(
@@ -130,6 +142,7 @@ class _ProfileHeader extends StatelessWidget {
     final displayRole = switch (role) {
       'DRIVER' => 'USER + DRIVER',
       'COMPANY' => 'USER + COMPANY',
+      'STAFF_COMPANY' => 'STAFF_COMPANY',
       _ => 'USER',
     };
     return Container(
@@ -271,4 +284,3 @@ class _ProfileMenuItem extends StatelessWidget {
     );
   }
 }
-
