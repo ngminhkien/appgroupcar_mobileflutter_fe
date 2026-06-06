@@ -106,6 +106,8 @@ String vehicleTypeLabelOf(int value) {
       return 'Xe 7 chỗ';
     case 3:
       return 'Xe đường dài';
+    case 4:
+      return 'Xe tải';
     default:
       return value > 0 ? 'Loại $value' : 'Chưa xác định';
   }

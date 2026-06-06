@@ -13,6 +13,10 @@ class BusShowtimeDetail extends Equatable {
     this.route,
     this.vehicle,
     this.driver,
+    this.totalSeats,
+    this.availableSeats,
+    this.tripType = 1,
+    this.tripTypeName = 'Xe bus',
   });
 
   final String id;
@@ -26,6 +30,10 @@ class BusShowtimeDetail extends Equatable {
   final BusRouteDetail? route;
   final BusVehicleDetail? vehicle;
   final BusDriverDetail? driver;
+  final int? totalSeats;
+  final int? availableSeats;
+  final int tripType;
+  final String tripTypeName;
 
   DateTime? get departureDateTime {
     final date = departureDate.trim();
@@ -38,23 +46,113 @@ class BusShowtimeDetail extends Equatable {
   }
 
   factory BusShowtimeDetail.fromJson(Map<String, dynamic> json) {
-    final routeMap = _readMap(json['route']);
-    final vehicleMap = _readMap(json['vehicle']);
-    final driverMap = _readMap(json['driver']);
+    var routeMap = _readMap(json['route']);
+    if (routeMap == null) {
+      final rawPoints =
+          json['routePoints'] ??
+          (json['startPoint'] != null && json['endPoint'] != null
+              ? [
+                  {
+                    'id': 'start-point-id',
+                    'locationId': json['startPoint']['locationId'] ?? '',
+                    'locationName': json['startPoint']['locationName'] ?? '',
+                    'sequence': 1,
+                    'stopType': 1,
+                    'pickupAllowed': true,
+                    'dropoffAllowed': false,
+                  },
+                  {
+                    'id': 'end-point-id',
+                    'locationId': json['endPoint']['locationId'] ?? '',
+                    'locationName': json['endPoint']['locationName'] ?? '',
+                    'sequence': 2,
+                    'stopType': 5,
+                    'pickupAllowed': false,
+                    'dropoffAllowed': true,
+                  },
+                ]
+              : null);
+      if (rawPoints != null) {
+        routeMap = {
+          'id': json['routeId'] ?? json['id'] ?? '',
+          'name': json['routeName'] ?? json['name'] ?? '',
+          'companyId': json['companyId'] ?? '',
+          'estimatedDurationMinutes': json['estimatedDurationMinutes'],
+          'routePoints': rawPoints,
+        };
+      }
+    }
+
+    var vehicleMap = _readMap(json['vehicle']);
+    if (vehicleMap == null &&
+        (json['plateNumber'] != null || json['vehicleId'] != null)) {
+      vehicleMap = {
+        'companyVehicleId': json['vehicleId'] ?? json['companyVehicleId'] ?? '',
+        'seatLayoutId': json['seatLayoutId'] ?? '',
+        'seatLayoutName': json['seatLayoutName'] ?? '',
+        'plateNumber': json['plateNumber'] ?? '',
+        'seatCapacity': json['seatCapacity'] ?? json['totalSeats'] ?? 0,
+        'vehicleType': json['vehicleType'] ?? 0,
+        'urlImage': json['urlImage'] ?? '',
+        'brand': json['brand'] ?? '',
+      };
+    }
+
+    var driverMap = _readMap(json['driver']);
+    if (driverMap == null &&
+        (json['driverId'] != null ||
+            json['driverName'] != null ||
+            json['fullName'] != null)) {
+      driverMap = {
+        'companyDriverId': json['driverId'] ?? json['companyDriverId'] ?? '',
+        'userId': json['userId'] ?? '',
+        'fullName': json['driverName'] ?? json['fullName'] ?? '',
+        'avatarUrl': json['avatarUrl'] ?? '',
+        'licenseNumber': json['licenseNumber'] ?? '',
+        'licenseClass': json['licenseClass'] ?? '',
+        'driverRatingAverage': json['driverRatingAverage'] ?? 0.0,
+        'driverRatingCount': json['driverRatingCount'] ?? 0,
+      };
+    }
+
+    final parsedPrice = _readDouble(json['price'] ?? json['basePrice']);
+    final totalSeatsVal = _readNullableInt(json['totalSeats']);
+    final availableSeatsVal = _readNullableInt(json['availableSeats']);
+    final seatCountVal = _readInt(json['seatCount'] ?? json['totalSeats']);
+    final tripTypeVal = _readInt(json['tripType'] ?? 1);
+    final tripTypeNameVal = _readString(json['tripTypeName'] ?? 'Xe bus');
+
+    var depDate = _readString(json['departureDate']);
+    var depTime = _readString(json['departureTime']);
+    if (depDate.isEmpty && depTime.isNotEmpty && depTime.contains('T')) {
+      final parts = depTime.split('T');
+      depDate = parts[0];
+      depTime = parts[1].replaceAll('Z', '');
+    }
+
+    var compName = _readString(json['companyName']);
+    if (compName.trim().isEmpty) {
+      compName = 'Xe ghép';
+    }
+
     return BusShowtimeDetail(
       id: _readString(json['id']),
-      companyId: _readString(json['companyId']),
-      companyName: _readString(json['companyName']),
-      departureDate: _readString(json['departureDate']),
-      departureTime: _readString(json['departureTime']),
-      price: _readDouble(json['price']),
+      companyId: _readString(json['companyId'] ?? json['driverId']),
+      companyName: compName,
+      departureDate: depDate,
+      departureTime: depTime,
+      price: parsedPrice,
       status: _readInt(json['status']),
-      seatCount: _readInt(json['seatCount']),
+      seatCount: seatCountVal,
       route: routeMap == null ? null : BusRouteDetail.fromJson(routeMap),
       vehicle: vehicleMap == null
           ? null
           : BusVehicleDetail.fromJson(vehicleMap),
       driver: driverMap == null ? null : BusDriverDetail.fromJson(driverMap),
+      totalSeats: totalSeatsVal,
+      availableSeats: availableSeatsVal,
+      tripType: tripTypeVal,
+      tripTypeName: tripTypeNameVal,
     );
   }
 
@@ -71,6 +169,10 @@ class BusShowtimeDetail extends Equatable {
     route,
     vehicle,
     driver,
+    totalSeats,
+    availableSeats,
+    tripType,
+    tripTypeName,
   ];
 }
 
@@ -167,6 +269,7 @@ class BusVehicleDetail extends Equatable {
     required this.seatCapacity,
     required this.vehicleType,
     required this.urlImage,
+    this.brand = '',
   });
 
   final String companyVehicleId;
@@ -176,16 +279,20 @@ class BusVehicleDetail extends Equatable {
   final int seatCapacity;
   final int vehicleType;
   final String urlImage;
+  final String brand;
 
   factory BusVehicleDetail.fromJson(Map<String, dynamic> json) {
     return BusVehicleDetail(
-      companyVehicleId: _readString(json['companyVehicleId']),
+      companyVehicleId: _readString(
+        json['companyVehicleId'] ?? json['vehicleId'],
+      ),
       seatLayoutId: _readString(json['seatLayoutId']),
       seatLayoutName: _readString(json['seatLayoutName']),
       plateNumber: _readString(json['plateNumber']),
       seatCapacity: _readInt(json['seatCapacity']),
       vehicleType: _readInt(json['vehicleType']),
       urlImage: _readString(json['urlImage']),
+      brand: _readString(json['brand']),
     );
   }
 
@@ -198,6 +305,7 @@ class BusVehicleDetail extends Equatable {
     seatCapacity,
     vehicleType,
     urlImage,
+    brand,
   ];
 }
 
@@ -209,6 +317,8 @@ class BusDriverDetail extends Equatable {
     required this.avatarUrl,
     required this.licenseNumber,
     required this.licenseClass,
+    this.driverRatingAverage = 0.0,
+    this.driverRatingCount = 0,
   });
 
   final String companyDriverId;
@@ -217,15 +327,19 @@ class BusDriverDetail extends Equatable {
   final String avatarUrl;
   final String licenseNumber;
   final String licenseClass;
+  final double driverRatingAverage;
+  final int driverRatingCount;
 
   factory BusDriverDetail.fromJson(Map<String, dynamic> json) {
     return BusDriverDetail(
-      companyDriverId: _readString(json['companyDriverId']),
+      companyDriverId: _readString(json['companyDriverId'] ?? json['driverId']),
       userId: _readString(json['userId']),
       fullName: _readString(json['fullName']),
       avatarUrl: _readString(json['avatarUrl']),
       licenseNumber: _readString(json['licenseNumber']),
       licenseClass: _readString(json['licenseClass']),
+      driverRatingAverage: _readDouble(json['driverRatingAverage']),
+      driverRatingCount: _readInt(json['driverRatingCount']),
     );
   }
 
@@ -237,6 +351,8 @@ class BusDriverDetail extends Equatable {
     avatarUrl,
     licenseNumber,
     licenseClass,
+    driverRatingAverage,
+    driverRatingCount,
   ];
 }
 

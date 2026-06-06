@@ -37,7 +37,9 @@ class UnauthorizedInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final isUnauthorized = err.response?.statusCode == 401;
     if (_canRefreshAndRetry(err.requestOptions, isUnauthorized)) {
-      final retriedResponse = await _retryWithRefreshedToken(err.requestOptions);
+      final retriedResponse = await _retryWithRefreshedToken(
+        err.requestOptions,
+      );
       if (retriedResponse != null) {
         return handler.resolve(retriedResponse);
       }

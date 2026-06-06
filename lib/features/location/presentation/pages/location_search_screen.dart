@@ -191,7 +191,7 @@ class _LocationSearchViewState extends State<_LocationSearchView> {
             ),
             SizedBox(height: 10.h),
             Text(
-              'Khong tim thay dia diem phu hop',
+              'Không tìm thấy địa điểm phù hợp',
               style: TextStyle(
                 color: AppColors.onSurfaceVariant,
                 fontSize: 14.sp,
@@ -205,7 +205,11 @@ class _LocationSearchViewState extends State<_LocationSearchView> {
 
   Widget _buildError(BuildContext context, {String? message}) {
     final text =
-        message?.replaceFirst('Exception: ', '') ?? 'Co loi khi tim dia diem';
+        message?.contains('500') == true ||
+            message?.toLowerCase().contains('connection') == true
+        ? 'Lỗi hệ thống. Vui lòng thử lại.'
+        : (message?.replaceFirst('Exception: ', '') ??
+              'Có lỗi khi tìm địa điểm');
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 28.w),
@@ -223,7 +227,7 @@ class _LocationSearchViewState extends State<_LocationSearchView> {
             SizedBox(height: 14.h),
             ElevatedButton(
               onPressed: () => context.read<LocationSearchCubit>().retry(),
-              child: const Text('Thu lai'),
+              child: const Text('Thử lại'),
             ),
           ],
         ),

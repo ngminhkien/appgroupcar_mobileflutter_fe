@@ -8,9 +8,6 @@ class CompanyLoginRequest {
   final String businessLicenseNo;
 
   Map<String, dynamic> toJson() {
-    return {
-      'Email': email,
-      'BusinessLicenseNo': businessLicenseNo,
-    };
+    return {'Email': email, 'BusinessLicenseNo': businessLicenseNo};
   }
 }

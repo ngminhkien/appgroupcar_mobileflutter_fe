@@ -130,7 +130,14 @@ class _SearchResultsViewState extends State<_SearchResultsView> {
   }
 
   void _openTripDetail(BuildContext context, TripSearchItem item) {
-    final detailApi = item.reference.detailApi.trim();
+    var detailApi = item.reference.detailApi.trim();
+    final service = item.reference.serviceCode.trim().toUpperCase().replaceAll(
+      RegExp(r'[-_\s]'),
+      '',
+    );
+    if (service == 'SHAREDRIDE' || service == 'SHARERIDE') {
+      detailApi = '/Offer/${item.tripId}/detail';
+    }
     if (detailApi.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -321,14 +328,11 @@ class _TripResultCard extends StatelessWidget {
                   label: 'Gio den du kien',
                   value: _formatApiDateTime(item.estimatedArrivalTime),
                 ),
-                if (matchedPickupPoint != null || matchedDropoffPoint != null)
-                  ...[
-                    SizedBox(height: 8.h),
-                    Divider(
-                      color: AppColors.outlineVariant,
-                      height: 1.h,
-                    ),
-                  ],
+                if (matchedPickupPoint != null ||
+                    matchedDropoffPoint != null) ...[
+                  SizedBox(height: 8.h),
+                  Divider(color: AppColors.outlineVariant, height: 1.h),
+                ],
                 if (matchedPickupPoint != null) ...[
                   SizedBox(height: 8.h),
                   _MatchedPointRow(
@@ -410,10 +414,15 @@ class _TripResultCard extends StatelessWidget {
   }
 
   static IconData _serviceIcon(String serviceCode) {
-    switch (serviceCode.toUpperCase()) {
+    final code = serviceCode.trim().toUpperCase().replaceAll(
+      RegExp(r'[-_\s]'),
+      '',
+    );
+    switch (code) {
       case 'BUS':
         return Icons.directions_bus_filled_outlined;
       case 'SHAREDRIDE':
+      case 'SHARERIDE':
         return Icons.airport_shuttle_outlined;
       case 'TRUCK':
         return Icons.local_shipping_outlined;

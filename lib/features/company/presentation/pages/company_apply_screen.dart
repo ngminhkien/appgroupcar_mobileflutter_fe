@@ -70,7 +70,8 @@ class _CompanyApplyViewState extends State<_CompanyApplyView> {
   Widget build(BuildContext context) {
     return BlocListener<CompanyApplyCubit, CompanyApplyState>(
       listenWhen: (previous, current) =>
-          previous.status != current.status || previous.action != current.action,
+          previous.status != current.status ||
+          previous.action != current.action,
       listener: (context, state) {
         if (state.status == CompanyApplyStatus.failure) {
           final message =
@@ -173,8 +174,9 @@ class _CompanyApplyViewState extends State<_CompanyApplyView> {
                               logoPath: state.logoPath,
                               isLoading: isSubmitting,
                               onPick: _pickLogo,
-                              onClear: () =>
-                                  context.read<CompanyApplyCubit>().changeLogo(null),
+                              onClear: () => context
+                                  .read<CompanyApplyCubit>()
+                                  .changeLogo(null),
                             ),
                             SizedBox(height: 18.h),
                             TextFormField(
@@ -197,11 +199,16 @@ class _CompanyApplyViewState extends State<_CompanyApplyView> {
                               textInputAction: TextInputAction.next,
                               autovalidateMode:
                                   AutovalidateMode.onUserInteraction,
-                              validator: _isUpdateMode ? null : _validateRequired,
+                              validator: _isUpdateMode
+                                  ? null
+                                  : _validateRequired,
                               decoration: InputDecoration(
-                                labelText: 'Ma cong ty ${_isUpdateMode ? '(khong doi)' : '*'}',
+                                labelText:
+                                    'Ma cong ty ${_isUpdateMode ? '(khong doi)' : '*'}',
                                 hintText: 'ABC001',
-                                prefixIcon: const Icon(Icons.confirmation_number_outlined),
+                                prefixIcon: const Icon(
+                                  Icons.confirmation_number_outlined,
+                                ),
                               ),
                             ),
                             SizedBox(height: 14.h),
@@ -227,7 +234,9 @@ class _CompanyApplyViewState extends State<_CompanyApplyView> {
                                 labelText: _isUpdateMode
                                     ? 'Loai cong ty (chi xem)'
                                     : 'Loai cong ty *',
-                                prefixIcon: const Icon(Icons.local_taxi_outlined),
+                                prefixIcon: const Icon(
+                                  Icons.local_taxi_outlined,
+                                ),
                               ),
                             ),
                             SizedBox(height: 14.h),
@@ -325,7 +334,9 @@ class _CompanyApplyViewState extends State<_CompanyApplyView> {
                                     ? 'Ma so thue (chi xem)'
                                     : 'Ma so thue (tuy chon)',
                                 hintText: '0312345678',
-                                prefixIcon: const Icon(Icons.receipt_long_outlined),
+                                prefixIcon: const Icon(
+                                  Icons.receipt_long_outlined,
+                                ),
                               ),
                             ),
                             SizedBox(height: 14.h),
@@ -339,7 +350,9 @@ class _CompanyApplyViewState extends State<_CompanyApplyView> {
                                   labelText: _isUpdateMode
                                       ? 'Ngay cap GP (chi xem)'
                                       : 'Ngay cap GP (tuy chon)',
-                                  prefixIcon: const Icon(Icons.calendar_month_outlined),
+                                  prefixIcon: const Icon(
+                                    Icons.calendar_month_outlined,
+                                  ),
                                 ),
                                 child: Text(
                                   _licenseIssuedDate == null
@@ -358,14 +371,17 @@ class _CompanyApplyViewState extends State<_CompanyApplyView> {
                                     ? 'Noi cap GP (chi xem)'
                                     : 'Noi cap GP (tuy chon)',
                                 hintText: 'So Ke hoach va Dau tu',
-                                prefixIcon: const Icon(Icons.apartment_outlined),
+                                prefixIcon: const Icon(
+                                  Icons.apartment_outlined,
+                                ),
                               ),
                             ),
                             SizedBox(height: 22.h),
                             if (!_isUpdateMode)
                               ElevatedButton(
-                                onPressed:
-                                    isSubmitting ? null : () => _onCreatePressed(state),
+                                onPressed: isSubmitting
+                                    ? null
+                                    : () => _onCreatePressed(state),
                                 child: isSubmitting
                                     ? SizedBox(
                                         width: 18.w,
@@ -747,7 +763,10 @@ class _CompanyStatusCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   status.label,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -980,10 +999,7 @@ class _CompanyLookupDialogState extends State<_CompanyLookupDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Dong'),
         ),
-        ElevatedButton(
-          onPressed: _onSubmit,
-          child: const Text('Kiem tra'),
-        ),
+        ElevatedButton(onPressed: _onSubmit, child: const Text('Kiem tra')),
       ],
     );
   }

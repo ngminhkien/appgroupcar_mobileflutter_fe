@@ -17,11 +17,24 @@ class BusBookingRepositoryImpl implements BusBookingRepository {
   Future<BusBooking> createBusBooking({
     required String showtimeId,
     required List<String> seatNumbers,
+    required String pickupLocationId,
+    required String dropoffLocationId,
     int status = 1,
   }) async {
     final normalizedShowtimeId = showtimeId.trim();
     if (normalizedShowtimeId.isEmpty) {
       throw Exception('Showtime id khong hop le');
+    }
+    final normalizedPickupId = pickupLocationId.trim();
+    if (normalizedPickupId.isEmpty) {
+      throw Exception('Diem len khong duoc de trong');
+    }
+    final normalizedDropoffId = dropoffLocationId.trim();
+    if (normalizedDropoffId.isEmpty) {
+      throw Exception('Diem xuong khong duoc de trong');
+    }
+    if (normalizedPickupId == normalizedDropoffId) {
+      throw Exception('Diem len va diem xuong khong duoc trung nhau');
     }
     if (status != 1 && status != 2) {
       throw Exception('Invalid booking status');
@@ -37,6 +50,8 @@ class BusBookingRepositoryImpl implements BusBookingRepository {
       accessToken: accessToken,
       showtimeId: normalizedShowtimeId,
       seatNumbers: normalizedSeats,
+      pickupLocationId: normalizedPickupId,
+      dropoffLocationId: normalizedDropoffId,
       status: status,
     );
 
@@ -69,6 +84,68 @@ class BusBookingRepositoryImpl implements BusBookingRepository {
   }
 
   @override
+  Future<BusBooking> createOfferBooking({
+    required String offerId,
+    required String pickupLocationId,
+    required String dropoffLocationId,
+    required double price,
+  }) async {
+    final normalizedOfferId = offerId.trim();
+    if (normalizedOfferId.isEmpty) {
+      throw Exception('Offer id khong hop le');
+    }
+    final normalizedPickupId = pickupLocationId.trim();
+    if (normalizedPickupId.isEmpty) {
+      throw Exception('Diem len khong duoc de trong');
+    }
+    final normalizedDropoffId = dropoffLocationId.trim();
+    if (normalizedDropoffId.isEmpty) {
+      throw Exception('Diem xuong khong duoc de trong');
+    }
+    if (normalizedPickupId == normalizedDropoffId) {
+      throw Exception('Diem len va diem xuong khong duoc trung nhau');
+    }
+
+    final accessToken = await _requireAccessToken();
+    final response = await remoteDataSource.createOfferBooking(
+      accessToken: accessToken,
+      offerId: normalizedOfferId,
+      pickupLocationId: normalizedPickupId,
+      dropoffLocationId: normalizedDropoffId,
+      price: price,
+    );
+
+    if (response.code == 201) {
+      return response.data ??
+          BusBooking(
+            bookingId: '',
+            showtimeId: offerId,
+            userId: '',
+            totalPrice: price,
+            status: 1,
+            expireAt: null,
+            seats: const [],
+            pickupLocationId: pickupLocationId,
+            dropoffLocationId: dropoffLocationId,
+          );
+    }
+
+    if (response.code == 401) {
+      throw Exception('Invalid user');
+    }
+    if (response.code == 404) {
+      final message = response.message.trim();
+      throw Exception(message.isNotEmpty ? message : 'Offer not found');
+    }
+
+    final message = response.message.trim();
+    if (message.isNotEmpty) {
+      throw Exception(message);
+    }
+    throw Exception('Create booking failed');
+  }
+
+  @override
   Future<List<BusBooking>> getMyBusBookings() async {
     final accessToken = await _requireAccessToken();
     final response = await remoteDataSource.getMyBookings(
@@ -81,11 +158,15 @@ class BusBookingRepositoryImpl implements BusBookingRepository {
       throw Exception('Invalid user');
     }
     final message = response.message.trim();
-    throw Exception(message.isNotEmpty ? message : 'Khong the tai danh sach ve');
+    throw Exception(
+      message.isNotEmpty ? message : 'Khong the tai danh sach ve',
+    );
   }
 
   @override
-  Future<BusBookingDetail> getBusBookingDetail({required String bookingId}) async {
+  Future<BusBookingDetail> getBusBookingDetail({
+    required String bookingId,
+  }) async {
     final normalizedBookingId = bookingId.trim();
     if (normalizedBookingId.isEmpty) {
       throw Exception('Booking id khong hop le');

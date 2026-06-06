@@ -17,9 +17,7 @@ class CompanyApiResponse {
   }) {
     final rawErrors = json['errors'];
     final errors = rawErrors is Map
-        ? rawErrors.map(
-            (key, value) => MapEntry(key.toString(), value),
-          )
+        ? rawErrors.map((key, value) => MapEntry(key.toString(), value))
         : null;
     return CompanyApiResponse(
       code: json['code'] as int? ?? fallbackCode,

@@ -51,7 +51,8 @@ class _BusSeatSelectionView extends StatelessWidget {
               }
               return IconButton(
                 icon: const Icon(Icons.refresh),
-                onPressed: () => context.read<BusSeatSelectionCubit>().refresh(),
+                onPressed: () =>
+                    context.read<BusSeatSelectionCubit>().refresh(),
               );
             },
           ),
@@ -71,7 +72,8 @@ class _BusSeatSelectionView extends StatelessWidget {
               if (state.detail == null || state.seatMap == null) {
                 return _SeatErrorView(
                   message: 'Du lieu chon ghe khong hop le',
-                  onRetry: () => context.read<BusSeatSelectionCubit>().refresh(),
+                  onRetry: () =>
+                      context.read<BusSeatSelectionCubit>().refresh(),
                 );
               }
               return _SeatSuccessView(state: state);
@@ -80,14 +82,15 @@ class _BusSeatSelectionView extends StatelessWidget {
           }
         },
       ),
-      bottomNavigationBar: BlocBuilder<BusSeatSelectionCubit, BusSeatSelectionState>(
-        builder: (context, state) {
-          if (state.status != BusSeatSelectionStatus.success) {
-            return const SizedBox.shrink();
-          }
-          return _SeatBottomBar(state: state);
-        },
-      ),
+      bottomNavigationBar:
+          BlocBuilder<BusSeatSelectionCubit, BusSeatSelectionState>(
+            builder: (context, state) {
+              if (state.status != BusSeatSelectionStatus.success) {
+                return const SizedBox.shrink();
+              }
+              return _SeatBottomBar(state: state);
+            },
+          ),
     );
   }
 }

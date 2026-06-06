@@ -30,7 +30,10 @@ class _MyTicketsView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surfaceContainerLow,
       appBar: AppBar(
-        title: const Text('Ve cua toi', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Ve cua toi',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         actions: [
           BlocBuilder<MyTicketsCubit, MyTicketsState>(
             builder: (context, state) {
@@ -70,7 +73,8 @@ class _MyTicketsView extends StatelessWidget {
                     final booking = state.bookings[index];
                     return _TicketCard(
                       booking: booking,
-                      onTap: () => context.push('/my_tickets/${booking.bookingId}'),
+                      onTap: () =>
+                          context.push('/my_tickets/${booking.bookingId}'),
                     );
                   },
                   separatorBuilder: (_, __) => SizedBox(height: 10.h),
@@ -171,6 +175,20 @@ class _TicketCard extends StatelessWidget {
                 value: _formatMoney(booking.totalPrice),
                 valueColor: AppColors.primaryContainer,
                 isStrong: true,
+              ),
+              SizedBox(height: 6.h),
+              _TicketInfoRow(
+                label: 'Diem len',
+                value: booking.pickupLocationId.trim().isEmpty
+                    ? 'Dang cap nhat'
+                    : _shortId(booking.pickupLocationId),
+              ),
+              SizedBox(height: 6.h),
+              _TicketInfoRow(
+                label: 'Diem xuong',
+                value: booking.dropoffLocationId.trim().isEmpty
+                    ? 'Dang cap nhat'
+                    : _shortId(booking.dropoffLocationId),
               ),
               SizedBox(height: 6.h),
               _TicketInfoRow(

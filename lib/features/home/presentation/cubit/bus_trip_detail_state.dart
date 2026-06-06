@@ -15,6 +15,8 @@ class BusTripDetailState extends Equatable {
     this.detail,
     this.selectedSeats = const [],
     this.errorMessage,
+    this.selectedPickupLocation,
+    this.selectedDropoffLocation,
   });
 
   final BusTripDetailStatus status;
@@ -24,6 +26,8 @@ class BusTripDetailState extends Equatable {
   final BusShowtimeDetail? detail;
   final List<String> selectedSeats;
   final String? errorMessage;
+  final BusRoutePointDetail? selectedPickupLocation;
+  final BusRoutePointDetail? selectedDropoffLocation;
 
   bool get isBusService => serviceCode.trim().toUpperCase() == 'BUS';
 
@@ -40,6 +44,8 @@ class BusTripDetailState extends Equatable {
     Object? detail = _busTripUnset,
     List<String>? selectedSeats,
     String? errorMessage,
+    Object? selectedPickupLocation = _busTripUnset,
+    Object? selectedDropoffLocation = _busTripUnset,
   }) {
     return BusTripDetailState(
       status: status ?? this.status,
@@ -51,6 +57,12 @@ class BusTripDetailState extends Equatable {
           : detail as BusShowtimeDetail?,
       selectedSeats: selectedSeats ?? this.selectedSeats,
       errorMessage: errorMessage,
+      selectedPickupLocation: selectedPickupLocation == _busTripUnset
+          ? this.selectedPickupLocation
+          : selectedPickupLocation as BusRoutePointDetail?,
+      selectedDropoffLocation: selectedDropoffLocation == _busTripUnset
+          ? this.selectedDropoffLocation
+          : selectedDropoffLocation as BusRoutePointDetail?,
     );
   }
 
@@ -63,5 +75,7 @@ class BusTripDetailState extends Equatable {
     detail,
     selectedSeats,
     errorMessage,
+    selectedPickupLocation,
+    selectedDropoffLocation,
   ];
 }

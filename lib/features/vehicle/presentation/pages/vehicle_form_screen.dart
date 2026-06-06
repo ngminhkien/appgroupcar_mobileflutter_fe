@@ -412,6 +412,7 @@ class _VehicleFormState extends State<VehicleForm> {
                               value: 3,
                               child: Text('Xe đường dài'),
                             ),
+                            DropdownMenuItem(value: 4, child: Text('Xe tải')),
                           ],
                           onChanged: isSubmitting
                               ? null
@@ -595,7 +596,7 @@ class _VehicleFormState extends State<VehicleForm> {
   }
 
   bool _isSupportedVehicleType(int? value) {
-    return value == 1 || value == 2 || value == 3;
+    return value == 1 || value == 2 || value == 3 || value == 4;
   }
 }
 

@@ -7,15 +7,25 @@ class CreateBusBookingParams extends Equatable {
   const CreateBusBookingParams({
     required this.showtimeId,
     required this.seatNumbers,
+    required this.pickupLocationId,
+    required this.dropoffLocationId,
     this.status = 1,
   });
 
   final String showtimeId;
   final List<String> seatNumbers;
+  final String pickupLocationId;
+  final String dropoffLocationId;
   final int status;
 
   @override
-  List<Object?> get props => [showtimeId, seatNumbers, status];
+  List<Object?> get props => [
+    showtimeId,
+    seatNumbers,
+    pickupLocationId,
+    dropoffLocationId,
+    status,
+  ];
 }
 
 class CreateBusBookingUseCase {
@@ -27,6 +37,8 @@ class CreateBusBookingUseCase {
     return _repository.createBusBooking(
       showtimeId: params.showtimeId,
       seatNumbers: params.seatNumbers,
+      pickupLocationId: params.pickupLocationId,
+      dropoffLocationId: params.dropoffLocationId,
       status: params.status,
     );
   }

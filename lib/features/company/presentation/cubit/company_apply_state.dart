@@ -34,7 +34,8 @@ class CompanyApplyState extends Equatable {
 
   bool get isSubmitting =>
       status == CompanyApplyStatus.loading &&
-      (action == CompanyApplyAction.create || action == CompanyApplyAction.update);
+      (action == CompanyApplyAction.create ||
+          action == CompanyApplyAction.update);
 
   CompanyApplyState copyWith({
     CompanyApplyStatus? status,

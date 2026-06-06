@@ -94,7 +94,7 @@ class _BusTripDetailView extends StatelessWidget {
               case BusTripDetailStatus.success:
                 if (state.detail == null) {
                   return _DetailErrorView(
-                    message: 'Khong co thong tin chuyen bus',
+                    message: 'Khong co thong tin chuyen di',
                     onRetry: () =>
                         context.read<BusTripDetailCubit>().retryDetail(),
                   );
@@ -103,7 +103,7 @@ class _BusTripDetailView extends StatelessWidget {
               case BusTripDetailStatus.initial:
                 return const SizedBox.shrink();
             }
-          }
+          },
         ),
       ),
     );
@@ -206,18 +206,19 @@ class _TripSummaryCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 12.h),
+          const Divider(color: AppColors.outlineVariant, height: 1),
+          SizedBox(height: 12.h),
           Wrap(
             spacing: 8.w,
             runSpacing: 8.h,
             children: [
+              if (departure != null)
+                _InfoChip(
+                  icon: Icons.access_time,
+                  label: _formatDateTime(departure),
+                ),
               _InfoChip(
-                icon: Icons.schedule_outlined,
-                label: departure == null
-                    ? 'Dang cap nhat gio'
-                    : _formatDateTime(departure),
-              ),
-              _InfoChip(
-                icon: Icons.sell_outlined,
+                icon: Icons.payments_outlined,
                 label: 'Gia: ${_formatMoney(detail.price)}',
                 highlighted: true,
               ),
@@ -427,6 +428,8 @@ class _VehicleSection extends StatelessWidget {
             label: 'Bien so',
             value: _fallback(vehicle!.plateNumber),
           ),
+          if (vehicle!.brand.isNotEmpty)
+            _LabelValueRow(label: 'Dong xe', value: vehicle!.brand),
           _LabelValueRow(
             label: 'Suc chua',
             value: vehicle!.seatCapacity <= 0
@@ -458,6 +461,12 @@ class _DriverSection extends StatelessWidget {
             label: 'Hang bang',
             value: _fallback(driver!.licenseClass),
           ),
+          if (driver!.driverRatingCount > 0)
+            _LabelValueRow(
+              label: 'Danh gia',
+              value:
+                  '${driver!.driverRatingAverage} ⭐ (${driver!.driverRatingCount} luot)',
+            ),
         ],
       ),
     );
@@ -472,6 +481,21 @@ class _BookingActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sortedPoints = detail.route?.routePoints.toList() ?? [];
+    sortedPoints.sort((a, b) => a.sequence.compareTo(b.sequence));
+
+    final pickupPoints = sortedPoints
+        .where((p) => p.stopType == 1 || p.stopType == 2)
+        .toList();
+    final dropoffPoints = sortedPoints
+        .where((p) => p.stopType == 4 || p.stopType == 5)
+        .toList();
+    final filteredDropoffPoints = dropoffPoints
+        .where(
+          (p) => p.sequence > (state.selectedPickupLocation?.sequence ?? -1),
+        )
+        .toList();
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(14.w),
@@ -483,14 +507,107 @@ class _BookingActionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
+            'Chon diem hanh trinh',
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800),
+          ),
+          SizedBox(height: 10.h),
+          DropdownButtonFormField<BusRoutePointDetail>(
+            initialValue: state.selectedPickupLocation,
+            decoration: InputDecoration(
+              labelText: 'Diem len xe (Pickup)',
+              labelStyle: TextStyle(
+                fontSize: 12.sp,
+                color: AppColors.onSurfaceVariant,
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+                vertical: 8.h,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
+              ),
+              filled: true,
+              fillColor: AppColors.surfaceContainerLow,
+            ),
+            items: pickupPoints.map((point) {
+              return DropdownMenuItem<BusRoutePointDetail>(
+                value: point,
+                child: Text(
+                  '${point.sequence}. ${point.locationName} (${RouteStopType.fromValue(point.stopType).displayLabel})',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12.sp),
+                ),
+              );
+            }).toList(),
+            onChanged: (val) =>
+                context.read<BusTripDetailCubit>().selectPickupLocation(val),
+          ),
+          SizedBox(height: 10.h),
+          DropdownButtonFormField<BusRoutePointDetail>(
+            initialValue: state.selectedDropoffLocation,
+            decoration: InputDecoration(
+              labelText: 'Diem xuong xe (Dropoff)',
+              labelStyle: TextStyle(
+                fontSize: 12.sp,
+                color: AppColors.onSurfaceVariant,
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+                vertical: 8.h,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: BorderSide(
+                  color: AppColors.outlineVariant.withValues(alpha: 0.5),
+                ),
+              ),
+              filled: true,
+              fillColor: state.selectedPickupLocation == null
+                  ? AppColors.surfaceContainerLow.withValues(alpha: 0.5)
+                  : AppColors.surfaceContainerLow,
+            ),
+            items: filteredDropoffPoints.map((point) {
+              return DropdownMenuItem<BusRoutePointDetail>(
+                value: point,
+                child: Text(
+                  '${point.sequence}. ${point.locationName} (${RouteStopType.fromValue(point.stopType).displayLabel})',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12.sp),
+                ),
+              );
+            }).toList(),
+            onChanged: state.selectedPickupLocation == null
+                ? null
+                : (val) => context
+                      .read<BusTripDetailCubit>()
+                      .selectDropoffLocation(val),
+          ),
+          SizedBox(height: 16.h),
+          Text(
             'Dat ve',
             style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800),
           ),
           SizedBox(height: 6.h),
           Text(
-            state.selectedSeats.isEmpty
-                ? 'Ban chua chon ghe. Hay vao man hinh chon ghe de tiep tuc dat ve.'
-                : 'Da chon ${state.selectedSeats.length} ghe: ${state.selectedSeats.join(', ')}',
+            state.selectedPickupLocation == null ||
+                    state.selectedDropoffLocation == null
+                ? 'Vui long chon diem len va diem xuong de tiep tuc.'
+                : (state.selectedSeats.isEmpty
+                      ? 'Ban chua chon ghe. Hay vao man hinh chon ghe de tiep tuc dat ve.'
+                      : 'Da chon ${state.selectedSeats.length} ghe: ${state.selectedSeats.join(', ')}'),
             style: TextStyle(
               color: AppColors.onSurfaceVariant,
               fontSize: 12.sp,
@@ -524,7 +641,11 @@ class _BookingActionCard extends StatelessWidget {
               SizedBox(width: 8.w),
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () => _openSeatSelection(context),
+                  onPressed:
+                      (state.selectedPickupLocation == null ||
+                          state.selectedDropoffLocation == null)
+                      ? null
+                      : () => _openSeatSelection(context),
                   icon: const Icon(Icons.event_seat_outlined),
                   label: const Text('Chon ghe'),
                   style: ElevatedButton.styleFrom(
@@ -541,15 +662,23 @@ class _BookingActionCard extends StatelessWidget {
               builder: (context, bookingState) {
                 final isSubmitting =
                     bookingState.status == BusBookingActionStatus.loading;
+                final canBook =
+                    !isSubmitting &&
+                    state.selectedPickupLocation != null &&
+                    state.selectedDropoffLocation != null;
                 return SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: isSubmitting ? null : () => _bookSelectedSeats(context),
+                    onPressed: canBook
+                        ? () => _bookSelectedSeats(context)
+                        : null,
                     child: isSubmitting
                         ? SizedBox(
                             width: 18.w,
                             height: 18.w,
-                            child: const CircularProgressIndicator(strokeWidth: 2),
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
                           )
                         : const Text('Dat ve'),
                   ),
@@ -577,12 +706,16 @@ class _BookingActionCard extends StatelessWidget {
   }
 
   void _bookSelectedSeats(BuildContext context) {
-    if (state.selectedSeats.isEmpty) {
+    if (state.selectedSeats.isEmpty ||
+        state.selectedPickupLocation == null ||
+        state.selectedDropoffLocation == null) {
       return;
     }
     context.read<BusBookingActionCubit>().createBooking(
       showtimeId: detail.id,
       seatNumbers: state.selectedSeats,
+      pickupLocationId: state.selectedPickupLocation!.locationId,
+      dropoffLocationId: state.selectedDropoffLocation!.locationId,
       status: 1,
     );
   }

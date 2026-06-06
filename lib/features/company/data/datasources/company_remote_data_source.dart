@@ -14,7 +14,9 @@ class CompanyRemoteDataSource {
     final response = await _dio.post(
       '/companies',
       data: await _createCompanyFormData(request),
-      options: Options(validateStatus: (status) => status != null && status < 500),
+      options: Options(
+        validateStatus: (status) => status != null && status < 500,
+      ),
     );
     return _parseApiResponse(
       response.data,
@@ -29,7 +31,9 @@ class CompanyRemoteDataSource {
     final response = await _dio.put(
       '/companies/$id',
       data: await _updateCompanyFormData(request),
-      options: Options(validateStatus: (status) => status != null && status < 500),
+      options: Options(
+        validateStatus: (status) => status != null && status < 500,
+      ),
     );
     return _parseApiResponse(
       response.data,
@@ -41,7 +45,9 @@ class CompanyRemoteDataSource {
     final response = await _dio.post(
       '/companies/login',
       data: request.toJson(),
-      options: Options(validateStatus: (status) => status != null && status < 500),
+      options: Options(
+        validateStatus: (status) => status != null && status < 500,
+      ),
     );
     return _parseApiResponse(
       response.data,

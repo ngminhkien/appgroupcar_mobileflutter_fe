@@ -12,9 +12,21 @@ class BusShowtimeDetailResponse {
   final BusShowtimeDetail? data;
 
   factory BusShowtimeDetailResponse.fromJson(Map<String, dynamic> json) {
-    final dataMap = _detailReadMap(json['data']);
+    Map<String, dynamic>? dataMap;
+    if (json.containsKey('data') && json['data'] is Map<String, dynamic>) {
+      dataMap = json['data'] as Map<String, dynamic>;
+    } else if (json.containsKey('id') ||
+        json.containsKey('tripId') ||
+        json.containsKey('price') ||
+        json.containsKey('basePrice')) {
+      dataMap = json;
+    }
+    var codeVal = _detailReadInt(json['code']);
+    if (codeVal == 0 && (json['success'] == true || dataMap != null)) {
+      codeVal = 200;
+    }
     return BusShowtimeDetailResponse(
-      code: _detailReadInt(json['code']),
+      code: codeVal,
       message: _detailReadString(json['message']),
       data: dataMap == null ? null : BusShowtimeDetail.fromJson(dataMap),
     );
@@ -39,11 +51,4 @@ String _detailReadString(Object? value) {
     return value;
   }
   return '';
-}
-
-Map<String, dynamic>? _detailReadMap(Object? value) {
-  if (value is Map<String, dynamic>) {
-    return value;
-  }
-  return null;
 }

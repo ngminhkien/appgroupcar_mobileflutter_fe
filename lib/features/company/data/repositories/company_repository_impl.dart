@@ -157,10 +157,7 @@ class CompanyRepositoryImpl implements CompanyRepository {
     return CompanyStatus.unknown;
   }
 
-  String _extractErrorMessage(
-    String message,
-    Map<String, dynamic>? errors,
-  ) {
+  String _extractErrorMessage(String message, Map<String, dynamic>? errors) {
     if (errors == null || errors.isEmpty) {
       return message.isNotEmpty ? message : 'Yeu cau that bai';
     }

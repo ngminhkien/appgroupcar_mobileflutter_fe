@@ -14,6 +14,9 @@ class LocationSearchRequest {
   final bool availableForRoute;
 
   Map<String, dynamic> toQueryParameters() {
+    if (availableForRoute) {
+      return {'Keyword': query, 'PageNumber': pageNumber, 'PageSize': pageSize};
+    }
     return {
       'query': query,
       'isActive': isActive,

@@ -57,6 +57,8 @@ class BusBooking extends Equatable {
     required this.status,
     required this.expireAt,
     required this.seats,
+    required this.pickupLocationId,
+    required this.dropoffLocationId,
   });
 
   final String bookingId;
@@ -66,6 +68,8 @@ class BusBooking extends Equatable {
   final int status;
   final DateTime? expireAt;
   final List<BusBookingSeat> seats;
+  final String pickupLocationId;
+  final String dropoffLocationId;
 
   BusBookingStatus get bookingStatus => parseBusBookingStatus(status);
 
@@ -81,11 +85,12 @@ class BusBooking extends Equatable {
   }
 
   List<String> get seatNumbers {
-    final normalized = seats
-        .map((seat) => seat.seatNumber.trim().toUpperCase())
-        .where((seat) => seat.isNotEmpty)
-        .toList()
-      ..sort(_seatLabelComparator);
+    final normalized =
+        seats
+            .map((seat) => seat.seatNumber.trim().toUpperCase())
+            .where((seat) => seat.isNotEmpty)
+            .toList()
+          ..sort(_seatLabelComparator);
     return normalized;
   }
 
@@ -112,6 +117,12 @@ class BusBooking extends Equatable {
           .whereType<Map<String, dynamic>>()
           .map(BusBookingSeat.fromJson)
           .toList(),
+      pickupLocationId: _bookingReadString(
+        json['pickupLocationId'] ?? json['PickupLocationId'],
+      ),
+      dropoffLocationId: _bookingReadString(
+        json['dropoffLocationId'] ?? json['DropoffLocationId'],
+      ),
     );
   }
 
@@ -124,6 +135,8 @@ class BusBooking extends Equatable {
     status,
     expireAt,
     seats,
+    pickupLocationId,
+    dropoffLocationId,
   ];
 }
 

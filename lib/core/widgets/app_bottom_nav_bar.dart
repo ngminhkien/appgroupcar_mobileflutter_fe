@@ -76,11 +76,7 @@ const List<_NavItem> _userItems = [
 const List<_NavItem> _driverItems = [
   _NavItem(label: 'Trang chủ', icon: Icons.home, route: '/home'),
   _NavItem(label: 'Chuyến đi', icon: Icons.history, route: '/my_trips'),
-  _NavItem(
-    label: 'Tạo chuyến',
-    icon: Icons.add_circle_outline,
-    route: '/create_trip',
-  ),
+  _NavItem(label: 'Tài xế', icon: Icons.drive_eta, route: '/driver'),
   _NavItem(
     label: 'Hỗ trợ',
     icon: Icons.support_agent_outlined,

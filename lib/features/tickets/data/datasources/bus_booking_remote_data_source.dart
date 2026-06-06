@@ -13,6 +13,8 @@ class BusBookingRemoteDataSource {
     required String accessToken,
     required String showtimeId,
     required List<String> seatNumbers,
+    required String pickupLocationId,
+    required String dropoffLocationId,
     required int status,
   }) async {
     final response = await _dio.post(
@@ -21,6 +23,38 @@ class BusBookingRemoteDataSource {
         'showtimeId': showtimeId,
         'status': status,
         'seatNumbers': seatNumbers,
+        'pickupLocationId': pickupLocationId,
+        'dropoffLocationId': dropoffLocationId,
+      },
+      options: Options(
+        headers: {'Authorization': 'Bearer $accessToken'},
+        validateStatus: (code) => code != null && code < 500,
+      ),
+    );
+    return _parseCreateResponse(
+      response.data,
+      fallbackCode: response.statusCode ?? 0,
+    );
+  }
+
+  Future<CreateBusBookingResponse> createOfferBooking({
+    required String accessToken,
+    required String offerId,
+    required String pickupLocationId,
+    required String dropoffLocationId,
+    required double price,
+  }) async {
+    final response = await _dio.post(
+      '/Booking',
+      data: {
+        'offerId': offerId,
+        'itemRequestDTOs': [
+          {
+            'pickupLocationId': pickupLocationId,
+            'dropoffLocationId': dropoffLocationId,
+            'price': price,
+          },
+        ],
       },
       options: Options(
         headers: {'Authorization': 'Bearer $accessToken'},

@@ -90,9 +90,7 @@ class DriverRemoteDataSource {
     final documentPath = request.licenseDocumentImgPath;
     if (documentPath != null && documentPath.trim().isNotEmpty) {
       // Backend expects licenseDocumenImg (without "t") for update.
-      formMap['licenseDocumenImg'] = await MultipartFile.fromFile(
-        documentPath,
-      );
+      formMap['licenseDocumenImg'] = await MultipartFile.fromFile(documentPath);
     }
     return FormData.fromMap(formMap);
   }

@@ -33,15 +33,20 @@ import '../features/driver/presentation/cubit/driver_apply_cubit.dart';
 import '../features/home/data/datasources/home_search_local_data_source.dart';
 import '../features/home/data/datasources/trip_search_remote_data_source.dart';
 import '../features/home/data/datasources/bus_trip_remote_data_source.dart';
+import '../features/home/data/datasources/shared_ride_remote_data_source.dart';
 import '../features/home/data/repositories/bus_trip_repository_impl.dart';
+import '../features/home/data/repositories/shared_ride_repository_impl.dart';
 import '../features/home/data/repositories/trip_search_repository_impl.dart';
 import '../features/home/domain/repositories/bus_trip_repository.dart';
+import '../features/home/domain/repositories/shared_ride_repository.dart';
 import '../features/home/domain/repositories/trip_search_repository.dart';
 import '../features/home/domain/usecases/get_bus_seat_map_usecase.dart';
 import '../features/home/domain/usecases/get_bus_showtime_detail_usecase.dart';
+import '../features/home/domain/usecases/get_shared_ride_detail_usecase.dart';
 import '../features/home/domain/usecases/search_trips_usecase.dart';
 import '../features/home/presentation/cubit/bus_seat_selection_cubit.dart';
 import '../features/home/presentation/cubit/bus_trip_detail_cubit.dart';
+import '../features/home/presentation/cubit/shared_ride_detail_cubit.dart';
 import '../features/home/presentation/cubit/home_search_cubit.dart';
 import '../features/home/presentation/cubit/trip_search_cubit.dart';
 import '../features/location/data/datasources/location_remote_data_source.dart';
@@ -62,6 +67,7 @@ import '../features/tickets/data/datasources/bus_booking_remote_data_source.dart
 import '../features/tickets/data/repositories/bus_booking_repository_impl.dart';
 import '../features/tickets/domain/repositories/bus_booking_repository.dart';
 import '../features/tickets/domain/usecases/create_bus_booking_usecase.dart';
+import '../features/tickets/domain/usecases/create_offer_booking_usecase.dart';
 import '../features/tickets/domain/usecases/get_bus_booking_detail_usecase.dart';
 import '../features/tickets/domain/usecases/get_my_bus_bookings_usecase.dart';
 import '../features/tickets/presentation/cubit/bus_booking_action_cubit.dart';
@@ -79,6 +85,14 @@ import '../features/vehicle/domain/usecases/create_vehicle_usecase.dart';
 import '../features/vehicle/domain/usecases/get_my_vehicles_usecase.dart';
 import '../features/vehicle/domain/usecases/update_vehicle_usecase.dart';
 import '../features/vehicle/presentation/cubit/vehicle_cubit.dart';
+import '../features/offers/data/datasources/offers_remote_data_source.dart';
+import '../features/offers/data/repositories/offers_repository_impl.dart';
+import '../features/offers/domain/repositories/offers_repository.dart';
+import '../features/offers/domain/usecases/get_shared_rides_usecase.dart';
+import '../features/offers/domain/usecases/get_shipments_usecase.dart';
+import '../features/offers/domain/usecases/create_shared_ride_usecase.dart';
+import '../features/offers/domain/usecases/create_shipment_usecase.dart';
+import '../features/offers/presentation/cubit/offers_cubit.dart';
 
 final sl = GetIt.instance; // sl = Service Locator
 
@@ -160,10 +174,15 @@ Future<void> init() async {
   sl.registerLazySingleton(() => HomeSearchLocalDataSource(sl()));
   sl.registerLazySingleton(() => TripSearchRemoteDataSource(sl()));
   sl.registerLazySingleton(() => BusTripRemoteDataSource(sl()));
+  sl.registerLazySingleton(() => SharedRideRemoteDataSource(sl()));
   sl.registerLazySingleton<BusTripRepository>(
     () => BusTripRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<SharedRideRepository>(
+    () => SharedRideRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetBusShowtimeDetailUseCase(sl()));
+  sl.registerLazySingleton(() => GetSharedRideDetailUseCase(sl()));
   sl.registerLazySingleton(() => GetBusSeatMapUseCase(sl()));
   sl.registerLazySingleton<TripSearchRepository>(
     () => TripSearchRepositoryImpl(remoteDataSource: sl()),
@@ -172,6 +191,7 @@ Future<void> init() async {
   sl.registerFactory(() => HomeSearchCubit(sl()));
   sl.registerFactory(() => TripSearchCubit(sl()));
   sl.registerFactory(() => BusTripDetailCubit(sl()));
+  sl.registerFactory(() => SharedRideDetailCubit(sl()));
   sl.registerFactory(() => BusSeatSelectionCubit(sl()));
 
   // Features - Tickets
@@ -181,9 +201,10 @@ Future<void> init() async {
         BusBookingRepositoryImpl(remoteDataSource: sl(), authRepository: sl()),
   );
   sl.registerLazySingleton(() => CreateBusBookingUseCase(sl()));
+  sl.registerLazySingleton(() => CreateOfferBookingUseCase(sl()));
   sl.registerLazySingleton(() => GetMyBusBookingsUseCase(sl()));
   sl.registerLazySingleton(() => GetBusBookingDetailUseCase(sl()));
-  sl.registerFactory(() => BusBookingActionCubit(sl()));
+  sl.registerFactory(() => BusBookingActionCubit(sl(), sl()));
   sl.registerFactory(() => MyTicketsCubit(sl()));
   sl.registerFactory(() => TicketDetailCubit(sl()));
 
@@ -212,4 +233,15 @@ Future<void> init() async {
 
   // Features - Trips
   // sl.registerFactory(() => TripsBloc(sl()));
+
+  // Features - Offers
+  sl.registerLazySingleton(() => OffersRemoteDataSource(sl()));
+  sl.registerLazySingleton<OffersRepository>(
+    () => OffersRepositoryImpl(remoteDataSource: sl(), authRepository: sl()),
+  );
+  sl.registerLazySingleton(() => GetSharedRidesUseCase(sl()));
+  sl.registerLazySingleton(() => GetShipmentsUseCase(sl()));
+  sl.registerLazySingleton(() => CreateSharedRideUseCase(sl()));
+  sl.registerLazySingleton(() => CreateShipmentUseCase(sl()));
+  sl.registerFactory(() => OffersCubit(sl(), sl(), sl(), sl()));
 }

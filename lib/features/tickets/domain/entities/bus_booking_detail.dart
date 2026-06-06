@@ -4,10 +4,7 @@ import '../../../home/domain/entities/bus_showtime_detail.dart';
 import 'bus_booking.dart';
 
 class BusBookingDetail extends Equatable {
-  const BusBookingDetail({
-    required this.booking,
-    required this.showtime,
-  });
+  const BusBookingDetail({required this.booking, required this.showtime});
 
   final BusBooking booking;
   final BusShowtimeDetail? showtime;
@@ -23,12 +20,16 @@ class BusBookingDetail extends Equatable {
   String get statusLabel => booking.statusLabel;
   String get primaryTicketCode => booking.primaryTicketCode;
   List<String> get seatNumbers => booking.seatNumbers;
+  String get pickupLocationId => booking.pickupLocationId;
+  String get dropoffLocationId => booking.dropoffLocationId;
 
   factory BusBookingDetail.fromJson(Map<String, dynamic> json) {
     final showtimeMap = _bookingDetailReadMap(json['showtime']);
     return BusBookingDetail(
       booking: BusBooking.fromJson(json),
-      showtime: showtimeMap == null ? null : BusShowtimeDetail.fromJson(showtimeMap),
+      showtime: showtimeMap == null
+          ? null
+          : BusShowtimeDetail.fromJson(showtimeMap),
     );
   }
 

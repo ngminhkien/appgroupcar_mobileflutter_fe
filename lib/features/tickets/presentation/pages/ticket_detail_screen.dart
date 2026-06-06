@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/enums/route_stop_type.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/injection.dart';
+import '../../../home/domain/entities/bus_showtime_detail.dart';
 import '../../domain/entities/bus_booking.dart';
 import '../../domain/entities/bus_booking_detail.dart';
 import '../cubit/ticket_detail_cubit.dart';
@@ -167,6 +168,14 @@ class _TicketHeaderCard extends StatelessWidget {
           SizedBox(height: 10.h),
           _InfoRow(label: 'Tong tien', value: _formatMoney(detail.totalPrice)),
           _InfoRow(
+            label: 'Diem len xe',
+            value: _getLocationName(detail.pickupLocationId, detail.showtime),
+          ),
+          _InfoRow(
+            label: 'Diem xuong xe',
+            value: _getLocationName(detail.dropoffLocationId, detail.showtime),
+          ),
+          _InfoRow(
             label: 'Showtime',
             value: detail.showtimeId.trim().isEmpty
                 ? 'Dang cap nhat'
@@ -181,6 +190,24 @@ class _TicketHeaderCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getLocationName(String locationId, BusShowtimeDetail? showtime) {
+    final normalizedId = locationId.trim();
+    if (normalizedId.isEmpty) {
+      return 'Dang cap nhat';
+    }
+    if (showtime == null || showtime.route == null) {
+      return _shortId(normalizedId);
+    }
+    for (final point in showtime.route!.routePoints) {
+      if (point.locationId == normalizedId) {
+        return point.locationName.trim().isNotEmpty
+            ? point.locationName.trim()
+            : _shortId(normalizedId);
+      }
+    }
+    return _shortId(normalizedId);
   }
 }
 
@@ -281,10 +308,7 @@ class _ShowtimeSection extends StatelessWidget {
         ),
         child: Text(
           'Chua co thong tin chuyen bus',
-          style: TextStyle(
-            color: AppColors.onSurfaceVariant,
-            fontSize: 12.sp,
-          ),
+          style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12.sp),
         ),
       );
     }
@@ -309,25 +333,23 @@ class _ShowtimeSection extends StatelessWidget {
             style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800),
           ),
           SizedBox(height: 10.h),
-          _InfoRow(
-            label: 'Nha xe',
-            value: _fallback(showtime.companyName),
-          ),
+          _InfoRow(label: 'Nha xe', value: _fallback(showtime.companyName)),
           _InfoRow(
             label: 'Lo trinh',
             value: route == null ? 'Dang cap nhat' : _fallback(route.name),
           ),
           _InfoRow(
             label: 'Gio khoi hanh',
-            value: departure == null ? 'Dang cap nhat' : _formatDateTime(departure),
+            value: departure == null
+                ? 'Dang cap nhat'
+                : _formatDateTime(departure),
           ),
-          _InfoRow(
-            label: 'Gia/ghe',
-            value: _formatMoney(showtime.price),
-          ),
+          _InfoRow(label: 'Gia/ghe', value: _formatMoney(showtime.price)),
           _InfoRow(
             label: 'So ghe xe',
-            value: showtime.seatCount <= 0 ? 'Dang cap nhat' : '${showtime.seatCount}',
+            value: showtime.seatCount <= 0
+                ? 'Dang cap nhat'
+                : '${showtime.seatCount}',
           ),
           if (vehicle != null) ...[
             SizedBox(height: 8.h),
@@ -348,45 +370,40 @@ class _ShowtimeSection extends StatelessWidget {
             SizedBox(height: 10.h),
             Text(
               'Route points',
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 8.h),
-            ...route.routePoints
-                .map(
-                  (point) => Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.only(bottom: 8.h),
-                    padding: EdgeInsets.all(9.w),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(10.r),
+            ...route.routePoints.map(
+              (point) => Container(
+                width: double.infinity,
+                margin: EdgeInsets.only(bottom: 8.h),
+                padding: EdgeInsets.all(9.w),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${point.sequence}. ${_fallback(point.locationName)}',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${point.sequence}. ${_fallback(point.locationName)}',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(height: 2.h),
-                        Text(
-                          'StopType: ${RouteStopType.fromValue(point.stopType).displayLabel}',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: AppColors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: 2.h),
+                    Text(
+                      'StopType: ${RouteStopType.fromValue(point.stopType).displayLabel}',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                )
-                ,
+                  ],
+                ),
+              ),
+            ),
           ],
         ],
       ),
@@ -420,10 +437,7 @@ class _InfoRow extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -461,8 +475,7 @@ class _TicketDetailErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text =
-        message?.replaceFirst('Exception: ', '') ??
-        'Khong the tai chi tiet ve';
+        message?.replaceFirst('Exception: ', '') ?? 'Khong the tai chi tiet ve';
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 28.w),

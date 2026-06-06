@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/entities/bus_showtime_detail.dart';
 import '../../domain/usecases/get_bus_showtime_detail_usecase.dart';
 import '../models/trip_detail_navigation_args.dart';
 import 'bus_trip_detail_state.dart';
@@ -11,16 +12,22 @@ class BusTripDetailCubit extends Cubit<BusTripDetailState> {
   final GetBusShowtimeDetailUseCase _getBusShowtimeDetailUseCase;
 
   Future<void> initialize(TripDetailNavigationArgs args) async {
-    final normalizedServiceCode = args.serviceCode.trim().toUpperCase();
+    final rawServiceCode = args.serviceCode.trim().toUpperCase();
+    final normalizedServiceCode = rawServiceCode.replaceAll(
+      RegExp(r'[-_\s]'),
+      '',
+    );
     emit(
       state.copyWith(
         status: BusTripDetailStatus.loading,
         tripId: args.tripId.trim(),
-        serviceCode: normalizedServiceCode,
+        serviceCode: rawServiceCode,
         detailApi: args.detailApi.trim(),
         detail: null,
         selectedSeats: const [],
         errorMessage: null,
+        selectedPickupLocation: null,
+        selectedDropoffLocation: null,
       ),
     );
 
@@ -29,7 +36,7 @@ class BusTripDetailCubit extends Cubit<BusTripDetailState> {
         state.copyWith(
           status: BusTripDetailStatus.unsupported,
           errorMessage:
-              'Luong chi tiet cho service $normalizedServiceCode chua duoc ho tro',
+              'Luong chi tiet cho service $rawServiceCode chua duoc ho tro',
         ),
       );
       return;
@@ -48,6 +55,8 @@ class BusTripDetailCubit extends Cubit<BusTripDetailState> {
         detail: null,
         selectedSeats: const [],
         errorMessage: null,
+        selectedPickupLocation: null,
+        selectedDropoffLocation: null,
       ),
     );
     await _loadDetail();
@@ -71,16 +80,38 @@ class BusTripDetailCubit extends Cubit<BusTripDetailState> {
     emit(state.copyWith(selectedSeats: const []));
   }
 
+  void selectPickupLocation(BusRoutePointDetail? point) {
+    if (state.selectedDropoffLocation != null &&
+        point != null &&
+        state.selectedDropoffLocation!.sequence <= point.sequence) {
+      emit(
+        state.copyWith(
+          selectedPickupLocation: point,
+          selectedDropoffLocation: null,
+        ),
+      );
+    } else {
+      emit(state.copyWith(selectedPickupLocation: point));
+    }
+  }
+
+  void selectDropoffLocation(BusRoutePointDetail? point) {
+    emit(state.copyWith(selectedDropoffLocation: point));
+  }
+
   Future<void> _loadDetail() async {
     try {
       final detail = await _getBusShowtimeDetailUseCase(
         detailApi: state.detailApi,
       );
+
       emit(
         state.copyWith(
           status: BusTripDetailStatus.success,
           detail: detail,
           errorMessage: null,
+          selectedPickupLocation: null,
+          selectedDropoffLocation: null,
         ),
       );
     } catch (error) {

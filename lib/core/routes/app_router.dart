@@ -9,11 +9,13 @@ import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
 import '../../features/company/presentation/pages/company_apply_screen.dart';
 import '../../features/driver/presentation/pages/driver_apply_screen.dart';
+import '../../features/driver/presentation/pages/driver_dashboard_screen.dart';
 import '../../features/home/presentation/models/trip_detail_navigation_args.dart';
 import '../../features/home/presentation/models/bus_seat_selection_args.dart';
 import '../../features/home/presentation/models/trip_search_screen_args.dart';
 import '../../features/home/presentation/pages/bus_seat_selection_screen.dart';
 import '../../features/home/presentation/pages/bus_trip_detail_screen.dart';
+import '../../features/home/presentation/pages/shared_ride_detail_screen.dart';
 import '../../features/home/presentation/pages/search_results_screen.dart';
 import '../../features/home/presentation/pages/velocity_transit_home_screen.dart';
 import '../../features/intro/presentation/pages/intro_screen.dart';
@@ -154,6 +156,13 @@ class AppRouter {
                     serviceCode: '',
                     detailApi: '',
                   );
+            final normalized = args.serviceCode.trim().toUpperCase().replaceAll(
+              RegExp(r'[-_\s]'),
+              '',
+            );
+            if (normalized == 'SHAREDRIDE' || normalized == 'SHARERIDE') {
+              return SharedRideDetailScreen(args: args);
+            }
             return BusTripDetailScreen(args: args);
           },
         ),
@@ -176,6 +185,24 @@ class AppRouter {
         GoRoute(
           path: '/create_trip',
           builder: (context, state) => const CreateTripScreen(),
+        ),
+        GoRoute(
+          path: '/driver',
+          builder: (context, state) => const DriverDashboardScreen(),
+        ),
+        GoRoute(
+          path: '/driver/placeholder',
+          builder: (context, state) {
+            final title = state.uri.queryParameters['title'] ?? 'Tính năng';
+            final message =
+                state.uri.queryParameters['message'] ??
+                'Chức năng đang được phát triển và sẽ hoàn thiện sớm.';
+            return ProfilePlaceholderScreen(
+              title: title,
+              message: message,
+              icon: Icons.construction_outlined,
+            );
+          },
         ),
         GoRoute(
           path: '/my_tickets',

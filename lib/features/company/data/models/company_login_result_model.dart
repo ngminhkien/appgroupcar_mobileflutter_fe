@@ -22,7 +22,9 @@ class CompanyLoginResultModel {
     required String message,
   }) {
     final pendingValue = json['pendingUpdateData'];
-    final pendingMap = pendingValue is Map<String, dynamic> ? pendingValue : null;
+    final pendingMap = pendingValue is Map<String, dynamic>
+        ? pendingValue
+        : null;
     return CompanyLoginResultModel(
       companyId: (json['companyId'] ?? '').toString(),
       status: CompanyStatus.fromCompanyLoginApiValue(_asInt(json['status'])),
